@@ -1,0 +1,27 @@
+{
+  "name": "social-media-webapi",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "Omar-MK-20",
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "start": "node ./dist/index.js",
+    "build": "tsc",
+    "dev": "concurrently \"tsc -w\" \"node --watch ./dist/index.js\""
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^25.6.0",
+    "concurrently": "^9.2.1",
+    "typescript": "^6.0.2"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.4.1"
+  }
+}
