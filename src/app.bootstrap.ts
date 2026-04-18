@@ -2,6 +2,8 @@ import express from 'express';
 import { SEVER_PORT } from './app.config.js';
 import { authRouter } from './Modules/Auth/auth.controller.js';
 import { testDBConnection } from './DB/Connection.js';
+import { notFoundRoute } from './util/middlewares/notFound.middleware.js';
+import { errorMiddleware } from './util/middlewares/error.middleware.js';
 
 export async function bootstrap()
 {
@@ -19,9 +21,9 @@ export async function bootstrap()
     server.use("/auth", authRouter);
 
 
-    // server.use(errorMiddleware);
+    server.use(errorMiddleware);
 
-    // server.use(notFoundRoute);
+    server.use(notFoundRoute);
 
     if (!process.env.VERCEL)
     {
