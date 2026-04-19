@@ -1,26 +1,6 @@
-import type { HydratedDocument } from 'mongoose';
 import { model, Schema } from "mongoose";
 import { GenderEnum, ProviderEnum, RoleEnum } from "../../util/enums/user.enums.js";
-
-export interface IUser
-{
-    username: string;
-    email: string;
-    password: string;
-    DOB?: Date | undefined;
-    gender?: GenderEnum | undefined;
-    confirmEmail?: boolean | undefined;
-    phone?: string | undefined;
-    role?: RoleEnum | undefined;
-    provider: ProviderEnum;
-    profilePic?: string | undefined;
-    coverPics?: string[] | undefined;
-    changeCreditTime: Date;
-}
-
-
-export type HUser = HydratedDocument<IUser>;
-
+import type { IUser } from '../../util/interfaces/IUser.js';
 
 const userSchema = new Schema<IUser>({
     username: {
@@ -42,12 +22,10 @@ const userSchema = new Schema<IUser>({
         type: Number,
         enum: GenderEnum,
         default: GenderEnum.Male,
-        required: false,
     },
     confirmEmail: {
         type: Boolean,
         default: false,
-        required: false,
     },
     phone: {
         type: String,
@@ -66,6 +44,10 @@ const userSchema = new Schema<IUser>({
     },
     changeCreditTime: Date
 
+}, {
+    timestamps: true,
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true }
 });
 
 
