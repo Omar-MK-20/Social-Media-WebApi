@@ -1,6 +1,7 @@
 import type { ProjectionType, QueryOptions } from "mongoose";
-import { UserModel, type IUser } from "../Models/user.model.js";
+import { UserModel } from "../Models/user.model.js";
 import { DBRepo } from "./db.repo.js";
+import type { IUser } from "../../util/interfaces/IUser.js";
 
 class UserRepo extends DBRepo<IUser>
 {
