@@ -12,6 +12,7 @@ export function validation(validationSchema: Partial<Record<ReqKey, ZodObject>>)
     return (req: Request, res: Response, next: NextFunction) =>
     {
         let validationError: $ZodIssue[] = [];
+        req.valid = {};
 
         for (const key in validationSchema)
         {
@@ -20,10 +21,12 @@ export function validation(validationSchema: Partial<Record<ReqKey, ZodObject>>)
             if (!result.success)
             {
                 validationError.push(...result.error.issues);
+                continue;
             }
+            req.valid[key] = result.data;
         }
 
-        if (!validationError.length)
+        if (validationError.length > 0)
         {
             throw new ContentError({ message: "Invalid Data", info: validationError });
         }
@@ -50,5 +53,4 @@ export const ValidationType = {
     role: z.enum(RoleEnum).default(RoleEnum.User),
     profilePic: z.string(),
     coverPics: z.array(z.string()),
-
 };
