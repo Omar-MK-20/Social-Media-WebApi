@@ -1,4 +1,4 @@
-import type { CreateOptions, Model, MongooseUpdateQueryOptions, ObjectId, ProjectionType, QueryFilter, QueryOptions, UpdateQuery, UpdateWithAggregationPipeline } from "mongoose";
+import type { Model, MongooseUpdateQueryOptions, ProjectionType, QueryFilter, QueryOptions, Types, UpdateQuery, UpdateWithAggregationPipeline } from "mongoose";
 
 export abstract class DBRepo<T>
 {
@@ -10,9 +10,9 @@ export abstract class DBRepo<T>
     }
 
     // TODO figure out the type of data parameter
-    public async create(data: any, options: CreateOptions)
+    public async create(data: any)
     {
-        return await this.Model.create(data, options);
+        return await this.Model.create(data);
     };
 
     public async updateOne(
@@ -41,9 +41,9 @@ export abstract class DBRepo<T>
     }
 
     public async findById(
-        id: string | ObjectId,
-        projection: ProjectionType<T> | null | undefined,
-        options: QueryOptions<T> & { lean: true; }
+        id: string | Types.ObjectId,
+        projection?: ProjectionType<T> | null | undefined,
+        options?: QueryOptions<T> & { lean: true; }
     )
     {
         return await this.Model.findById(id, projection, options);
