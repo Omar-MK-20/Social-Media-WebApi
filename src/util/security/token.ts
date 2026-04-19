@@ -1,12 +1,12 @@
 import jwt, { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 import { TOKEN_SIGNATURE_ADMIN_ACCESS, TOKEN_SIGNATURE_ADMIN_REFRESH, TOKEN_SIGNATURE_USER_ACCESS, TOKEN_SIGNATURE_USER_REFRESH } from "../../app.config.js";
 import { AuthType, TokenType } from "../enums/token.enums.js";
-import { UserRole } from "../enums/user.enums.js";
+import { RoleEnum } from "../enums/user.enums.js";
 import type { ITokenPayload } from "../interfaces/ITokenPayload.js";
 import { ContentError, UnauthorizedError } from "../res/ResponseError.js";
 
 
-export function tokenGenerator(userData: { id: string, email: string, role: UserRole; }, tokenType: string)
+export function tokenGenerator(userData: { id: string, email: string, role: RoleEnum; }, tokenType: string)
 {
     const { refreshSignature, accessSignature } = getSignature(userData.role);
 
@@ -59,19 +59,19 @@ export function verifyToken(desiredAuthType: AuthType, authorization: string, de
 
 
 
-export function getSignature(userRole: UserRole)
+export function getSignature(userRole: RoleEnum)
 {
     let refreshSignature: Buffer;
     let accessSignature: Buffer;
 
     switch (userRole)
     {
-        case UserRole.admin:
+        case RoleEnum.Admin:
             accessSignature = Buffer.from(TOKEN_SIGNATURE_ADMIN_ACCESS || "", "hex");
             refreshSignature = Buffer.from(TOKEN_SIGNATURE_ADMIN_REFRESH || "", "hex");
             break;
 
-        case UserRole.user:
+        case RoleEnum.User:
             accessSignature = Buffer.from(TOKEN_SIGNATURE_USER_ACCESS || "", "hex");
             refreshSignature = Buffer.from(TOKEN_SIGNATURE_USER_REFRESH || "", "hex");
             break;
