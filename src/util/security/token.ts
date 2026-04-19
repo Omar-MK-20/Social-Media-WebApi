@@ -1,12 +1,12 @@
-import jwt, { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
+import { Types } from "mongoose";
 import { TOKEN_SIGNATURE_ADMIN_ACCESS, TOKEN_SIGNATURE_ADMIN_REFRESH, TOKEN_SIGNATURE_USER_ACCESS, TOKEN_SIGNATURE_USER_REFRESH } from "../../app.config.js";
 import { AuthType, TokenType } from "../enums/token.enums.js";
 import { RoleEnum } from "../enums/user.enums.js";
 import type { ITokenPayload } from "../interfaces/ITokenPayload.js";
 import { ContentError, UnauthorizedError } from "../res/ResponseError.js";
 
-
-export function tokenGenerator(userData: { id: string, email: string, role: RoleEnum; }, tokenType: string)
+export function generateToken(userData: { id: string | Types.ObjectId, email: string, role: RoleEnum; }, tokenType: TokenType)
 {
     const { refreshSignature, accessSignature } = getSignature(userData.role);
 
@@ -38,17 +38,17 @@ export function verifyToken(desiredAuthType: AuthType, authorization: string, de
 
         const signature = desiredTokenType == TokenType.access ? accessSignature : refreshSignature;
 
-        const data = jwt.verify(token, signature, { complete: true });
+        const data = jwt.verify(token, signature);
         return data;
     }
     catch (error) 
     {
-        if (error instanceof TokenExpiredError)
+        if (error instanceof jwt.TokenExpiredError)
         {
             throw new UnauthorizedError({ message: "token expired", info: { error } });
         }
 
-        if (error instanceof JsonWebTokenError)
+        if (error instanceof jwt.JsonWebTokenError)
         {
             throw new ContentError({ message: error.message, info: { error } });
         }
