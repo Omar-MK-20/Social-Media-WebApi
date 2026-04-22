@@ -9,8 +9,7 @@ export abstract class DBRepo<T>
         this.Model = model;
     }
 
-    // TODO figure out the type of data parameter
-    public async create(data: any)
+    public async create(data: Partial<T>)
     {
         return await this.Model.create(data);
     };
