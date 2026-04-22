@@ -18,9 +18,9 @@ export function successObject<T>(status: TStatusCode, message: string, result: T
 }
 
 
-export function getSuccessObject<T>(data: T)
+export function getSuccessObject<T>(data: T): TResponseObject<T>
 {
-    return { status: StatusCodeEnum.Ok, message: "success", data };
+    return { status: StatusCodeEnum.Ok, message: "success", result: data };
 }
 
 
