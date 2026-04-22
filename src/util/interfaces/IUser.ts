@@ -15,7 +15,7 @@ export interface IUser
     provider: ProviderEnum;
     profilePic?: string | undefined;
     coverPics?: string[] | undefined;
-    changeCreditTime: Date;
+    changeCreditTime?: Date;
 }
 
 
