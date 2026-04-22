@@ -1,11 +1,13 @@
-import { UserModel } from "../../DB/Models/user.model.js";
 import userRepo from "../../DB/Repos/user.repo.js";
+import { OtpTypesEnum } from "../../util/enums/otp.enums.js";
 import { TokenType } from "../../util/enums/token.enums.js";
+import { sendMail } from "../../util/nodemailer/mail.config.js";
 import { ConflictError, UnauthorizedError } from "../../util/res/ResponseError.js";
 import { createSuccessObject, successObject } from "../../util/res/ResponseObject.js";
 import { encrypt } from "../../util/security/encryption.js";
 import { compareHashes, hashingPassword } from "../../util/security/hashing.js";
-import { generateToken } from "../../util/security/token.js";
+import { generateOTP } from "../../util/security/otp.js";
+import TokenService from "../../util/security/token.service.js";
 import type { LoginDTO, SignupDTO } from "./auth.dto.js";
 
 export async function signup(bodyData: SignupDTO)
@@ -21,11 +23,15 @@ export async function signup(bodyData: SignupDTO)
     bodyData.password = await hashingPassword(bodyData.password);
 
     if (bodyData.phone) bodyData.phone = encrypt(bodyData.phone);
-    // const { password, ...result } = (await UserModel.create(bodyData)).toObject();
+
     const { password, ...result } = (await userRepo.create(bodyData)).toObject();
 
-    return createSuccessObject("User", result);
+    const otp = generateOTP();
 
+    // Question isn't it better to remove await, so it sends an email in the background?
+    await sendMail({ email: result.email, username: result.username, reason: OtpTypesEnum.verifyEmail, otp: otp, });
+
+    return createSuccessObject("User", result);
 }
 
 
@@ -47,8 +53,8 @@ export async function login(bodyData: LoginDTO)
 
     const { password, ...user } = existUser.toObject();
 
-    const accessToken: string = generateToken({ id: user._id, email: user.email, role: user.role }, TokenType.access);
-    const refreshToken: string = generateToken({ id: user._id, email: user.email, role: user.role }, TokenType.refresh);
+    const accessToken: string = TokenService.generateToken({ id: user._id, email: user.email, role: user.role }, TokenType.access);
+    const refreshToken: string = TokenService.generateToken({ id: user._id, email: user.email, role: user.role }, TokenType.refresh);
 
     return successObject(200, `${user.username} Logged in successfully`, { ...user, accessToken, refreshToken });
 
