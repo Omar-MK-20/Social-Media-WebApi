@@ -1,4 +1,4 @@
-import type { IUser } from "../interfaces/IUser.js";
+import type { HUser, IUser } from "../interfaces/IUser.js";
 
 
 declare global
@@ -8,7 +8,7 @@ declare global
         interface Request
         {
             valid: Record<string, any>;
-            user: IUser;
+            user: HUser;
         }
     }
 }
