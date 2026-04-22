@@ -4,6 +4,7 @@ import { authRouter } from './Modules/Auth/auth.controller.js';
 import { testDBConnection } from './DB/Connection.js';
 import { notFoundRoute } from './util/middlewares/notFound.middleware.js';
 import { errorMiddleware } from './util/middlewares/error.middleware.js';
+import { userRouter } from './Modules/User/user.controller.js';
 
 export async function bootstrap()
 {
@@ -19,6 +20,7 @@ export async function bootstrap()
     server.get("/", (req, res) => { res.json({ message: "Hello from Social Media Web API" }); });
 
     server.use("/auth", authRouter);
+    server.use("/user", userRouter);
 
 
     server.use(errorMiddleware);
