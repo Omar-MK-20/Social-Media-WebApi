@@ -14,5 +14,5 @@ export const TOKEN_SIGNATURE_ADMIN_REFRESH = process.env.TOKEN_SIGNATURE_ADMIN_R
 export const TOKEN_SIGNATURE_USER_REFRESH = process.env.TOKEN_SIGNATURE_USER_REFRESH as string;
 export const ALGORITHM = process.env.ALGORITHM as string;
 // export const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID  as string;
-// export const GOOGLE_NODEMAILER_USER = process.env.GOOGLE_NODEMAILER_USER;
-// export const GOOGLE_APP_PASSWORD = process.env.GOOGLE_APP_PASSWORD;
+export const GOOGLE_NODEMAILER_USER = process.env.GOOGLE_NODEMAILER_USER;
+export const GOOGLE_APP_PASSWORD = process.env.GOOGLE_APP_PASSWORD;
