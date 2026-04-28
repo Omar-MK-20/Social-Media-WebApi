@@ -58,8 +58,11 @@ const userSchema = new Schema<IUser>({
         enum: ProviderEnum,
         default: ProviderEnum.System
     },
-    changeCreditTime: Date
-
+    changeCreditTime: Date,
+    views: {
+        type: Number,
+        default: 0
+    },
 }, {
     timestamps: true,
     toObject: { getters: true },

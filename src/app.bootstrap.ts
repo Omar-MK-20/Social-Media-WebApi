@@ -1,19 +1,38 @@
+import cors from "cors";
 import express from 'express';
-import { SEVER_PORT } from './app.config.js';
-import { authRouter } from './Modules/Auth/auth.controller.js';
+import { REDIS_URL, SEVER_PORT } from './app.config.js';
 import { testDBConnection } from './DB/Connection.js';
-import { notFoundRoute } from './util/middlewares/notFound.middleware.js';
-import { errorMiddleware } from './util/middlewares/error.middleware.js';
+import { redisClient, testRedisConnection } from "./DB/redis.connection.js";
+import { authRouter } from './Modules/Auth/auth.controller.js';
 import { userRouter } from './Modules/User/user.controller.js';
+import { errorMiddleware } from './util/middlewares/error.middleware.js';
+import { notFoundRoute } from './util/middlewares/notFound.middleware.js';
+
 
 export async function bootstrap()
 {
 
     await testDBConnection();
+    await testRedisConnection();
+
+    if (REDIS_URL.includes("127.0.0.1"))
+    {
+        setInterval(async () =>
+        {
+            try
+            {
+                await redisClient.ping();
+                console.log("PING OK");
+            } catch (err)
+            {
+                console.log("Ping failed:", err);
+            }
+        }, 5000);
+    }
 
     const server = express();
 
-    // server.use(cors());
+    server.use(cors());
 
     server.use(express.json());
 
