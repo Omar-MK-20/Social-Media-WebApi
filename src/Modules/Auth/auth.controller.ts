@@ -1,8 +1,9 @@
 import { Router } from "express";
+import { validation } from "../../util/middlewares/validation.middleware.js";
 import { successResponse } from "../../util/res/ResponseObject.js";
 import * as authService from "./auth.service.js";
-import { validation } from "../../util/middlewares/validation.middleware.js";
 import { loginSchema, signupSchema } from "./auth.validation.js";
+import { ContentError } from "../../util/res/ResponseError.js";
 
 
 
@@ -27,3 +28,47 @@ authRouter.post("/login",
         successResponse(res, result);
     }
 );
+
+authRouter.post("/signup/gmail", async (req, res) =>
+{
+    let idToken;
+    if (req.body?.idToken)
+    {
+        idToken = req.body.idToken;
+    }
+    else
+    {
+        idToken = req.headers.authorization;
+    }
+
+    if (idToken == undefined)
+    {
+        throw new ContentError({ message: "idToken in required" });
+    }
+
+    const result = await authService.signupWithGoogle(idToken);
+
+    return successResponse(res, result);
+});
+
+authRouter.post("/login/gmail", async (req, res) =>
+{
+    let idToken;
+    if (req.body?.idToken)
+    {
+        idToken = req.body.idToken;
+    }
+    else
+    {
+        idToken = req.headers.authorization;
+    }
+
+    if (idToken == undefined)
+    {
+        throw new ContentError({ message: "idToken in required" });
+    }
+
+    const result = await authService.loginWithGoogle(idToken);
+
+    return successResponse(res, result);
+});
