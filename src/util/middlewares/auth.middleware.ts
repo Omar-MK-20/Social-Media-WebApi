@@ -25,13 +25,25 @@ export function authentication(tokenType = TokenType.access, authType = AuthType
 
         if (typeof payload == "string") { throw new ContentError({ message: "Invalid Token data", info: { payload } }); }
 
-        const result = await userRepo.findById(payload.id);
-        if (!result)
+        const user = await userRepo.findById(payload.id);
+        if (!user)
         {
             throw new UnauthorizedError({ message: "user not found, signup first" });
         }
 
-        req.user = result;
+
+        // logout from all devices (by changing the changeCreditTime property)
+        if (user.changeCreditTime && payload.iat)
+        {
+            if (user.changeCreditTime.getTime() > (payload.iat * 1000))
+            {
+                throw new UnauthorizedError({ message: "You need to login" });
+            }
+        }
+
+        req.user = user;
+        req.payload = payload;
+
         next();
     };
 }
