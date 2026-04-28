@@ -16,6 +16,7 @@ export interface IUser
     profilePic?: string | undefined;
     coverPics?: string[] | undefined;
     changeCreditTime?: Date;
+    views?: number
 }
 
 
