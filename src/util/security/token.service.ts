@@ -11,14 +11,14 @@ class TokenService
     constructor() { }
 
 
-    generateToken(userData: { id: string | Types.ObjectId, email: string, role: RoleEnum; }, tokenType: TokenType)
+    generateToken(userData: { id: string | Types.ObjectId, email: string, role: RoleEnum; }, tokenType: TokenType, uuid: string)
     {
         const { refreshSignature, accessSignature } = this.getSignature(userData.role);
 
         const signature = tokenType == TokenType.access ? accessSignature : refreshSignature;
         const expiresIn = tokenType == TokenType.access ? "10m" : "1y";
 
-        const token = jwt.sign({ ...userData, tokenType }, signature, { expiresIn: expiresIn });
+        const token = jwt.sign({ ...userData, tokenType }, signature, { expiresIn: expiresIn, jwtid: uuid });
 
         return token;
     }
