@@ -1,3 +1,4 @@
+import type { JwtPayload } from "jsonwebtoken";
 import type { HUser, IUser } from "../interfaces/IUser.js";
 
 
@@ -9,6 +10,7 @@ declare global
         {
             valid: Record<string, any>;
             user: HUser;
+            payload: JwtPayload;
         }
     }
 }
