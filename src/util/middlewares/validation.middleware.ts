@@ -43,6 +43,8 @@ const phoneRegExp = /^01[0125][0-9]{8}$/;
 
 
 export const ValidationType = {
+    id: z.string({ error: "id is required" })
+        .regex(/^[0-9a-fA-F]{24}$/, { error: "invalid id" }),
     username: z.string().min(3).max(50),
     email: z.email(),
     password: z.string().regex(passwordRegExp),
@@ -53,4 +55,5 @@ export const ValidationType = {
     role: z.enum(RoleEnum).default(RoleEnum.User),
     profilePic: z.string(),
     coverPics: z.array(z.string()),
+    fromAllDevices: z.boolean()
 };

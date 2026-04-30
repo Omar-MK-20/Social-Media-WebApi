@@ -38,6 +38,7 @@ export function decrypt(data: TEncrypt): string
     try
     {
         const [encryptedData, iv, authTag] = data.split(":");
+        console.log([encryptedData, iv, authTag]);
 
         if (!encryptedData)
         {
@@ -54,8 +55,9 @@ export function decrypt(data: TEncrypt): string
             throw new ResponseError("Error getting Initialization Vector from string", StatusCodeEnum.ServerError, { data });
         }
 
-        const decipher = crypto.createDecipheriv(algorithm, secretKey, iv);
-        decipher.setAuthTag(Buffer.from(authTag));
+        const decipher = crypto.createDecipheriv(algorithm, secretKey, Buffer.from(iv, "hex"));
+
+        decipher.setAuthTag(Buffer.from(authTag, "hex"));
 
         let decryptedData = decipher.update(encryptedData, "hex", "utf-8");
         decryptedData += decipher.final("utf-8");

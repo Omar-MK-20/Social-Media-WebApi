@@ -1,12 +1,12 @@
 import type { Request, Response, NextFunction } from "express";
 import { AuthType, TokenType } from "../enums/token.enums.js";
 import { ContentError, ForbiddenError, UnauthorizedError } from "../res/ResponseError.js";
-import { verifyToken } from "../security/token.js";
+import TokenService from "../security/token.service.js";
 import userRepo from "../../DB/Repos/user.repo.js";
 import type { RoleEnum } from "../enums/user.enums.js";
 
 
-export function authentication(tokenType = TokenType.access, authType = AuthType.bearer)
+export function authentication(tokenType = TokenType.access, authType = AuthType.bearer, { notRequired = false }: { notRequired?: boolean; } = {})
 {
     return async (req: Request, res: Response, next: NextFunction) =>
     {
@@ -14,20 +14,36 @@ export function authentication(tokenType = TokenType.access, authType = AuthType
 
         if (!authorization)
         {
+            if (notRequired == true)
+            {
+                return next();
+            }
             throw new ContentError({ message: "token is required", info: { authorization } });
         }
 
-        const payload = verifyToken(authType, authorization, tokenType);
+        const payload = TokenService.verifyToken(authType, authorization, tokenType);
 
         if (typeof payload == "string") { throw new ContentError({ message: "Invalid Token data", info: { payload } }); }
 
-        const result = await userRepo.findById(payload.id);
-        if (!result)
+        const user = await userRepo.findById(payload.id);
+        if (!user)
         {
             throw new UnauthorizedError({ message: "user not found, signup first" });
         }
 
-        req.user = result;
+
+        // logout from all devices (by changing the changeCreditTime property)
+        if (user.changeCreditTime && payload.iat)
+        {
+            if (user.changeCreditTime.getTime() > (payload.iat * 1000))
+            {
+                throw new UnauthorizedError({ message: "You need to login" });
+            }
+        }
+
+        req.user = user;
+        req.payload = payload;
+
         next();
     };
 }
