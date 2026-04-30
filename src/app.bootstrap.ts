@@ -2,14 +2,15 @@ import cors from "cors";
 import express from 'express';
 import { REDIS_URL, SEVER_PORT } from './app.config.js';
 import { testDBConnection } from './DB/Connection.js';
-import { redisClient, testRedisConnection } from "./DB/redis.connection.js";
+import { redisClient, testRedisConnection } from "./DB/Redis/redis.connection.js";
 import { authRouter } from './Modules/Auth/auth.controller.js';
 import { userRouter } from './Modules/User/user.controller.js';
 import { errorMiddleware } from './util/middlewares/error.middleware.js';
 import { notFoundRoute } from './util/middlewares/notFound.middleware.js';
+import type { TExpress } from "./util/types/express.types.js";
 
 
-export async function bootstrap()
+export async function bootstrap(server: TExpress)
 {
 
     await testDBConnection();
@@ -29,8 +30,6 @@ export async function bootstrap()
             }
         }, 5000);
     }
-
-    const server = express();
 
     server.use(cors());
 

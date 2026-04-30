@@ -1,6 +1,7 @@
 import express from 'express';
 import { bootstrap } from "./app.bootstrap.js";
 
-const app = await bootstrap();
+const app = express();
+await bootstrap(app);
 
 export default app;
