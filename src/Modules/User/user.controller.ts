@@ -5,7 +5,7 @@ import type { IUser } from "../../util/interfaces/IUser.js";
 import { authentication, authorization } from "../../util/middlewares/auth.middleware.js";
 import { validation } from "../../util/middlewares/validation.middleware.js";
 import { getSuccessObject, successResponse } from "../../util/res/ResponseObject.js";
-import * as userService from "./user.service.js";
+import userService from "./user.service.js";
 import { logoutSchema } from "./user.validation.js";
 
 export const userRouter = Router();

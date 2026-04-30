@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { validation } from "../../util/middlewares/validation.middleware.js";
 import { successResponse } from "../../util/res/ResponseObject.js";
-import * as authService from "./auth.service.js";
 import { loginSchema, signupSchema } from "./auth.validation.js";
 import { ContentError } from "../../util/res/ResponseError.js";
+import authService from "./auth.service.js";
 
 
 
@@ -72,3 +72,11 @@ authRouter.post("/login/gmail", async (req, res) =>
 
     return successResponse(res, result);
 });
+
+
+authRouter.post("/confirm-otp",
+    (req, res) =>
+    {
+        
+    }
+);

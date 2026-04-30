@@ -63,7 +63,6 @@ class TokenService
     }
 
 
-
     getSignature(userRole: RoleEnum)
     {
         let refreshSignature: Buffer;
