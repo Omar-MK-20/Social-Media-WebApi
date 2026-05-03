@@ -11,6 +11,7 @@ export enum StatusCodeEnum
     Forbidden = 403,
     NotFound = 404,
     Conflict = 409,
+    GoneError = 410,
     UnprocessableContent = 422,
     TooManyRequests = 429,
     ServerError = 500,

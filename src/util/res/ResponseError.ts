@@ -19,6 +19,16 @@ export class ResponseError extends Error implements IResponseError
 
 
 
+export class BadRequestError extends ResponseError
+{
+
+    constructor({ message, info }: { message: string, info?: object; })
+    {
+        super(message, StatusCodeEnum.BadRequest, info);
+        this.name = 'Not Found Error';
+    }
+}
+
 export class NotFoundError extends ResponseError
 {
 
@@ -67,6 +77,16 @@ export class ContentError extends ResponseError
     constructor({ message, info }: { message: string, info?: object; })
     {
         super(message, StatusCodeEnum.UnprocessableContent, info);
+        this.name = 'Unprocessable Content Error';
+    }
+}
+
+export class GoneError extends ResponseError
+{
+
+    constructor({ message, info }: { message: string, info?: object; })
+    {
+        super(message, StatusCodeEnum.GoneError, info);
         this.name = 'Unprocessable Content Error';
     }
 }
