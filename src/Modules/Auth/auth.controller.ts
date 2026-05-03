@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { validation } from "../../util/middlewares/validation.middleware.js";
 import { successResponse } from "../../util/res/ResponseObject.js";
-import { loginSchema, signupSchema } from "./auth.validation.js";
+import { confirmEmailSchema, loginSchema, resendConfirmEmailSchema, signupSchema } from "./auth.validation.js";
 import { ContentError } from "../../util/res/ResponseError.js";
 import authService from "./auth.service.js";
 
@@ -74,9 +74,30 @@ authRouter.post("/login/gmail", async (req, res) =>
 });
 
 
-authRouter.post("/confirm-otp",
-    (req, res) =>
+authRouter.post("/confirm-email",
+    validation(confirmEmailSchema),
+    async (req, res) =>
     {
-        
+        console.log(req.body);
+        const result = await authService.confirmEmail(req.body);
+        return successResponse(res, result);
+    }
+);
+
+
+authRouter.post("/resend-confirm-email",
+    validation(resendConfirmEmailSchema),
+    async (req, res) =>
+    {
+        const result = await authService.resendConfirmEmail(req.body.email);
+        return successResponse(res, result);
+    }
+);
+
+
+authRouter.post("/send-reset-password",
+    async (req, res) =>
+    {
+
     }
 );

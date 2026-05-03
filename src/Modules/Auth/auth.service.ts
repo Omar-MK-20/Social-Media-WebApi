@@ -1,19 +1,20 @@
 import type { Types } from "mongoose";
 import { randomUUID } from "node:crypto";
+import redisService from "../../DB/Redis/redis.service.js";
+import userRepo from "../../DB/Repos/user.repo.js";
 import { OtpTypesEnum } from "../../util/enums/otp.enums.js";
 import { TokenType } from "../../util/enums/token.enums.js";
 import { GenderEnum, ProviderEnum, RoleEnum } from "../../util/enums/user.enums.js";
-import { sendMail } from "../../util/nodemailer/mail.config.js";
-import { ConflictError, ContentError, UnauthorizedError } from "../../util/res/ResponseError.js";
+import { OTPKey } from "../../util/helpers/otp.funcs.js";
+import mailService from "../../util/nodemailer/mail.service.js";
+import { ConflictError, ContentError, ForbiddenError, GoneError, UnauthorizedError } from "../../util/res/ResponseError.js";
 import { successObject } from "../../util/res/ResponseObject.js";
 import { encrypt, type TEncrypt } from "../../util/security/encryption.js";
 import { verifyGoogleAuth } from "../../util/security/googleOAuth.js";
 import { compareHashes, hashingPassword } from "../../util/security/hashing.js";
-import { generateOTP } from "../../util/security/otp.js";
-import type { TResponseObject } from "../../util/types/ResponseTypes.js";
-import type { LoginDTO, SignupDTO } from "./auth.dto.js";
-import userRepo from "../../DB/Repos/user.repo.js";
 import tokenService from "../../util/security/token.service.js";
+import { StatusCodeEnum, type TResponseObject } from "../../util/types/ResponseTypes.js";
+import type { LoginDTO, SignupDTO } from "./auth.dto.js";
 
 
 
@@ -42,6 +43,8 @@ class AuthService
 
     private _userRepo = userRepo;
     private _tokenService = tokenService;
+    private _redisService = redisService;
+    private _mailService = mailService;
 
     constructor() { }
 
@@ -61,12 +64,12 @@ class AuthService
 
         const { password, ...result } = (await this._userRepo.create(bodyData)).toObject();
 
-        const otp = generateOTP();
 
-        // Question isn't it better to remove await, so it sends an email in the background?
-        await sendMail({ email: result.email, username: result.username, reason: OtpTypesEnum.verifyEmail, otp: otp, });
+        await this._mailService.sendEmailOTP({
+            user: { email: result.email, username: result.username },
+            reason: OtpTypesEnum.verifyEmail
+        });
 
-        // return createSuccessObject("User", result);
         return successObject(201, "Check your inbox", result);
     }
 
@@ -75,7 +78,6 @@ class AuthService
     {
 
         const existUser = await this._userRepo.findByEmail(bodyData.email, "+password");
-        console.log(existUser);
         if (!existUser)
         {
             throw new UnauthorizedError({ message: "Invalid Email or Password", info: { bodyData } });
@@ -108,7 +110,6 @@ class AuthService
         return successObject(200, `${user.username} Logged in successfully`, { ...user, accessToken, refreshToken });
 
     }
-
 
 
     public async signupWithGoogle(idToken: string): TLoginWithEmail
@@ -190,7 +191,57 @@ class AuthService
     }
 
 
-    public async confirmEmail()
+    public async confirmEmail(bodyData: { email: string, otp: string; })
+    {
+        const { email, otp } = bodyData;
+
+        const existUser = await this._userRepo.findOne({ email: email, confirmEmail: false });
+        if (!existUser)
+        {
+            throw new UnauthorizedError({ message: "Invalid Email or Email already confirmed", info: { email } });
+        }
+
+        const existOTP = await this._redisService.get(OTPKey(email, OtpTypesEnum.verifyEmail));
+        console.log({ existOTP });
+        if (!existOTP)
+        {
+            throw new ForbiddenError({ message: "Expired OTP", info: { email } });
+        }
+
+        const isOTPValid = await compareHashes(existOTP, otp.toString());
+        console.log({ isOTPValid });
+        if (!isOTPValid)
+        {
+            throw new UnauthorizedError({ message: "Invalid OTP", info: { otp } });
+        }
+
+        existUser.confirmEmail = true;
+        await existUser.save();
+
+        return successObject(StatusCodeEnum.Accepted, "Email Confirmed", existUser);
+
+    }
+
+
+    public async resendConfirmEmail(email: string)
+    {
+        const existUser = await this._userRepo.findByEmail(email);
+        if (!existUser)
+        {
+            throw new UnauthorizedError({ message: "Signup first", info: { email } });
+        }
+
+        if (existUser.confirmEmail)
+        {
+            throw new GoneError({ message: "Email already confirmed", info: { email } });
+        }
+
+        await this._mailService.sendEmailOTP({ user: { email, username: existUser.username }, reason: OtpTypesEnum.verifyEmail });
+
+        return successObject(StatusCodeEnum.Accepted, "Check your Inbox", existUser);
+    }
+
+    public async sendResetPassword()
     {
 
     }
