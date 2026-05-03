@@ -38,7 +38,6 @@ export function decrypt(data: TEncrypt): string
     try
     {
         const [encryptedData, iv, authTag] = data.split(":");
-        console.log([encryptedData, iv, authTag]);
 
         if (!encryptedData)
         {
