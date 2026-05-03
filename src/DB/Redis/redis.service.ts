@@ -40,6 +40,11 @@ class RedisService
         return 1;
     }
 
+    async incr(key: RedisArgument)
+    {
+        return await redisClient.incr(key);
+    }
+
 }
 
 
