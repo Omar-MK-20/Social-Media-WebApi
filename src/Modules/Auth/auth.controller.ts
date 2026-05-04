@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { validation } from "../../util/middlewares/validation.middleware.js";
 import { successResponse } from "../../util/res/ResponseObject.js";
-import { confirmEmailSchema, loginSchema, resendConfirmEmailSchema, signupSchema } from "./auth.validation.js";
+import { confirmEmailSchema, confirmResetPassword, loginSchema, resendConfirmEmailSchema, sendResetPasswordSchema, signupSchema } from "./auth.validation.js";
 import { ContentError } from "../../util/res/ResponseError.js";
 import authService from "./auth.service.js";
 
@@ -79,7 +79,7 @@ authRouter.post("/confirm-email",
     async (req, res) =>
     {
         console.log(req.body);
-        const result = await authService.confirmEmail(req.body);
+        const result = await authService.confirmEmail(req.valid.body);
         return successResponse(res, result);
     }
 );
@@ -89,15 +89,28 @@ authRouter.post("/resend-confirm-email",
     validation(resendConfirmEmailSchema),
     async (req, res) =>
     {
-        const result = await authService.resendConfirmEmail(req.body.email);
+        const result = await authService.resendConfirmEmail(req.valid.body.email);
         return successResponse(res, result);
     }
 );
 
 
 authRouter.post("/send-reset-password",
+    validation(sendResetPasswordSchema),
     async (req, res) =>
     {
+        const result = await authService.sendResetPassword(req.valid.body.email);
+        return successResponse(res, result);
+    }
+);
 
+
+authRouter.post("/confirm-reset-password",
+    validation(confirmResetPassword),
+    async (req, res) =>
+    {
+        console.log(req.body);
+        const result = await authService.confirmResetPassword(req.valid.body);
+        return successResponse(res, result);
     }
 );

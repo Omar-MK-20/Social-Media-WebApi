@@ -202,14 +202,12 @@ class AuthService
         }
 
         const existOTP = await this._redisService.get(OTPKey(email, OtpTypesEnum.verifyEmail));
-        console.log({ existOTP });
         if (!existOTP)
         {
             throw new ForbiddenError({ message: "Expired OTP", info: { email } });
         }
 
         const isOTPValid = await compareHashes(existOTP, otp.toString());
-        console.log({ isOTPValid });
         if (!isOTPValid)
         {
             throw new UnauthorizedError({ message: "Invalid OTP", info: { otp } });
@@ -241,11 +239,70 @@ class AuthService
         return successObject(StatusCodeEnum.Accepted, "Check your Inbox", existUser);
     }
 
-    public async sendResetPassword()
+    public async sendResetPassword(email: string)
     {
+        const existUser = await this._userRepo.findByEmail(email);
 
+        if (!existUser)
+        {
+            throw new UnauthorizedError({ message: "Signup first", info: { email } });
+        }
+
+        if (!existUser.confirmEmail)
+        {
+            throw new ForbiddenError({ message: "Confirm your Email first", info: { email } });
+        }
+
+        await this._mailService.sendEmailOTP({
+            user: { email: existUser.email, username: existUser.username },
+            reason: OtpTypesEnum.resetPassword
+        });
+
+        return successObject(StatusCodeEnum.Accepted, "Check your inbox", existUser);
     }
 
+    public async confirmResetPassword(bodyData: { email: string, otp: string; newPassword: string; })
+    {
+        const { email, otp, newPassword } = bodyData;
+
+        const existUser = await this._userRepo.findOne({ email: email, confirmEmail: true }, "+password");
+        if (!existUser)
+        {
+            throw new UnauthorizedError({ message: "Signup first", info: { email } });
+        }
+
+        console.log(existUser.password, newPassword.toString())
+
+        if (!existUser.confirmEmail)
+        {
+            throw new ForbiddenError({ message: "Confirm your Email first", info: { email } });
+        }
+
+        const existOTP = await this._redisService.get(OTPKey(email, OtpTypesEnum.resetPassword));
+        if (!existOTP)
+        {
+            throw new ForbiddenError({ message: "Expired OTP", info: { email } });
+        }
+
+        const isOTPValid = await compareHashes(existOTP, otp.toString());
+        if (!isOTPValid)
+        {
+            throw new UnauthorizedError({ message: "Invalid OTP", info: { otp } });
+        }
+
+
+        if (await compareHashes(existUser.password, newPassword.toString()))
+        {
+            throw new ContentError({ message: "Use new Password", info: { newPassword } });
+        }
+
+        existUser.password = await hashingPassword(newPassword);
+        await existUser.save();
+
+        const { password, ...restUser } = existUser.toObject();
+
+        return successObject(StatusCodeEnum.Accepted, "Password reset successfully", restUser);
+    }
 
 }
 

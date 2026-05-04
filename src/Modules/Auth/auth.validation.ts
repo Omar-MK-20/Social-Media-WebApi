@@ -14,6 +14,7 @@ export const signupSchema = {
     })
 };
 
+
 export const loginSchema = {
     body: z.object({
         email: ValidationType.email,
@@ -29,8 +30,25 @@ export const confirmEmailSchema = {
     })
 };
 
+
 export const resendConfirmEmailSchema = {
     body: z.object({
         email: ValidationType.email,
+    })
+};
+
+
+export const sendResetPasswordSchema = {
+    body: z.object({
+        email: ValidationType.email,
+    })
+};
+
+
+export const confirmResetPassword = {
+    body: z.object({
+        email: ValidationType.email,
+        newPassword: ValidationType.password,
+        otp: ValidationType.otp,
     })
 };
