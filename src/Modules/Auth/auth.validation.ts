@@ -45,7 +45,7 @@ export const sendResetPasswordSchema = {
 };
 
 
-export const confirmResetPassword = {
+export const confirmResetPasswordSchema = {
     body: z.object({
         email: ValidationType.email,
         newPassword: ValidationType.password,

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { validation } from "../../util/middlewares/validation.middleware.js";
 import { successResponse } from "../../util/res/ResponseObject.js";
-import { confirmEmailSchema, confirmResetPassword, loginSchema, resendConfirmEmailSchema, sendResetPasswordSchema, signupSchema } from "./auth.validation.js";
+import { confirmEmailSchema, confirmResetPasswordSchema, loginSchema, resendConfirmEmailSchema, sendResetPasswordSchema, signupSchema } from "./auth.validation.js";
 import { ContentError } from "../../util/res/ResponseError.js";
 import authService from "./auth.service.js";
 
@@ -106,7 +106,7 @@ authRouter.post("/send-reset-password",
 
 
 authRouter.post("/confirm-reset-password",
-    validation(confirmResetPassword),
+    validation(confirmResetPasswordSchema),
     async (req, res) =>
     {
         console.log(req.body);
