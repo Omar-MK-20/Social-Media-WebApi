@@ -9,12 +9,12 @@ import { OTPKey } from "../../util/helpers/otp.funcs.js";
 import mailService from "../../util/nodemailer/mail.service.js";
 import { ConflictError, ContentError, ForbiddenError, GoneError, UnauthorizedError } from "../../util/res/ResponseError.js";
 import { successObject } from "../../util/res/ResponseObject.js";
-import { encrypt, type TEncrypt } from "../../util/security/encryption.js";
+import { type TEncrypt } from "../../util/security/encryption.js";
 import { verifyGoogleAuth } from "../../util/security/googleOAuth.js";
 import { compareHashes, hashingPassword } from "../../util/security/hashing.js";
 import tokenService from "../../util/security/token.service.js";
 import { StatusCodeEnum, type TResponseObject } from "../../util/types/ResponseTypes.js";
-import type { LoginDTO, SignupDTO } from "./auth.dto.js";
+import type { confirmEmailDTO, confirmResetPasswordDTO, LoginDTO, SignupDTO } from "./auth.dto.js";
 
 
 
@@ -58,12 +58,7 @@ class AuthService
             throw new ConflictError({ message: "Email already exist" });
         }
 
-        bodyData.password = await hashingPassword(bodyData.password);
-
-        if (bodyData.phone) bodyData.phone = encrypt(bodyData.phone);
-
         const { password, ...result } = (await this._userRepo.create(bodyData)).toObject();
-
 
         await this._mailService.sendEmailOTP({
             user: { email: result.email, username: result.username },
@@ -191,7 +186,7 @@ class AuthService
     }
 
 
-    public async confirmEmail(bodyData: { email: string, otp: string; })
+    public async confirmEmail(bodyData: confirmEmailDTO)
     {
         const { email, otp } = bodyData;
 
@@ -261,7 +256,7 @@ class AuthService
         return successObject(StatusCodeEnum.Accepted, "Check your inbox", existUser);
     }
 
-    public async confirmResetPassword(bodyData: { email: string, otp: string; newPassword: string; })
+    public async confirmResetPassword(bodyData: confirmResetPasswordDTO)
     {
         const { email, otp, newPassword } = bodyData;
 

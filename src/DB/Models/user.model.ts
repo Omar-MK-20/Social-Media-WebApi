@@ -1,8 +1,9 @@
 import { model, Schema } from "mongoose";
 import { GenderEnum, ProviderEnum, RoleEnum } from "../../util/enums/user.enums.js";
 import type { IUser } from '../../util/interfaces/IUser.js';
-import { decrypt, type TEncrypt } from "../../util/security/encryption.js";
+import { decrypt, encrypt, type TEncrypt } from "../../util/security/encryption.js";
 import { ResponseError } from "../../util/res/ResponseError.js";
+import { hashingPassword } from "../../util/security/hashing.js";
 
 const userSchema = new Schema<IUser>({
     username: {
@@ -34,7 +35,7 @@ const userSchema = new Schema<IUser>({
         get: function (value: string)
         {
             if (!value) return;
-            console.log(value);
+            if (this.isNew) return value;
             try
             {
                 return decrypt(value as TEncrypt);
@@ -67,6 +68,16 @@ const userSchema = new Schema<IUser>({
     timestamps: true,
     toObject: { getters: true },
     toJSON: { getters: true }
+});
+
+userSchema.pre("save", async function ()
+{
+    if (this.isModified("password"))
+    {
+        this.password = await hashingPassword(this.password);
+    }
+
+    if (this.phone && this.isModified("phone")) this.phone = encrypt(this.phone);
 });
 
 
