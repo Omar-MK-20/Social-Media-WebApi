@@ -6,6 +6,11 @@ class RedisService
 {
     constructor() { }
 
+    async keys(pattern: RedisArgument)
+    {
+        return await redisClient.keys(pattern);
+    }
+
     async set({ key, value, exType = "EX", exValue = 120 }:
         { key: RedisArgument, value: number | RedisArgument, exType?: 'EX' | 'PX' | 'EXAT' | 'PXAT', exValue?: number; })
     {

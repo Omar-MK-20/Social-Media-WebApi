@@ -9,6 +9,7 @@ import type { HUser, } from "../../util/interfaces/IUser.js";
 import { NotFoundError } from "../../util/res/ResponseError.js";
 import { getSuccessObject, successObject } from "../../util/res/ResponseObject.js";
 import tokenService from "../../util/security/token.service.js";
+import redisService from "../../DB/Redis/redis.service.js";
 
 
 class UserService
@@ -16,6 +17,7 @@ class UserService
 
     private _userRepo = userRepo;
     private _tokenService = tokenService;
+    private _redisService = redisService;
 
     constructor() { }
 
@@ -73,6 +75,10 @@ class UserService
         if (formAllDevices == true)
         {
             await this._userRepo.updateOne({ _id: userId }, { $set: { changeCreditTime: new Date() } });
+
+            const blockedTokens = await this._redisService.keys(blockedTokenKey(userId));
+            await this._redisService.del(blockedTokens);
+
             return successObject(200, "Logged out from all devices successfully", undefined);
         }
         // logout from single device (by blocking the token)
@@ -80,7 +86,7 @@ class UserService
         {
             await redisRepo.set({
                 key: blockedTokenKey(userId, tokenData.jti as string),
-                value: 0,
+                value: tokenData.jti as string,
                 exValue: Math.floor((60 * 60 * 24 * 365) - (Date.now() / 1000 - (tokenData.iat as number)))
             });
             return successObject(200, "Logged out successfully", undefined);
