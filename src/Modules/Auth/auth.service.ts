@@ -229,7 +229,7 @@ class AuthService
             throw new GoneError({ message: "Email already confirmed", info: { email } });
         }
 
-        await this._mailService.sendEmailOTP({ user: { email, username: existUser.username }, reason: OtpTypesEnum.verifyEmail });
+        await this._mailService.sendEmailOTP({ user: { email, username: existUser.username }, reason: OtpTypesEnum.verifyEmail, resend: true });
 
         return successObject(StatusCodeEnum.Accepted, "Check your Inbox", existUser);
     }
@@ -237,7 +237,6 @@ class AuthService
     public async sendResetPassword(email: string)
     {
         const existUser = await this._userRepo.findByEmail(email);
-
         if (!existUser)
         {
             throw new UnauthorizedError({ message: "Signup first", info: { email } });
@@ -256,6 +255,28 @@ class AuthService
         return successObject(StatusCodeEnum.Accepted, "Check your inbox", existUser);
     }
 
+    public async resendResetPassword(email: string)
+    {
+        const existUser = await this._userRepo.findByEmail(email);
+        if (!existUser)
+        {
+            throw new UnauthorizedError({ message: "Signup first", info: { email } });
+        }
+
+        if (!existUser.confirmEmail)
+        {
+            throw new ForbiddenError({ message: "Confirm your Email first", info: { email } });
+        }
+
+        await this._mailService.sendEmailOTP({
+            user: { email: existUser.email, username: existUser.username },
+            reason: OtpTypesEnum.resetPassword,
+            resend: true
+        });
+
+        return successObject(StatusCodeEnum.Accepted, "Check your inbox", existUser);
+    }
+
     public async confirmResetPassword(bodyData: confirmResetPasswordDTO)
     {
         const { email, otp, newPassword } = bodyData;
@@ -266,7 +287,7 @@ class AuthService
             throw new UnauthorizedError({ message: "Signup first", info: { email } });
         }
 
-        console.log(existUser.password, newPassword.toString())
+        console.log(existUser.password, newPassword.toString());
 
         if (!existUser.confirmEmail)
         {

@@ -104,6 +104,15 @@ authRouter.post("/send-reset-password",
     }
 );
 
+authRouter.post("/resend-reset-password",
+    validation(sendResetPasswordSchema),
+    async (req, res) =>
+    {
+        const result = await authService.resendResetPassword(req.valid.body.email);
+        return successResponse(res, result);
+    }
+);
+
 
 authRouter.post("/confirm-reset-password",
     validation(confirmResetPasswordSchema),

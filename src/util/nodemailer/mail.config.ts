@@ -14,7 +14,8 @@ const transporter = nodemailer.createTransport({
 });
 
 
-export async function sendMail({ email, username, reason, otp }: { email: string; username: string; reason: OtpTypesEnum; otp: string; })
+export async function sendMail(
+    { email, username, reason, otp, resend = false }: { email: string; username: string; reason: OtpTypesEnum; otp: string; resend?: boolean; })
 {
     try
     {
@@ -28,10 +29,10 @@ export async function sendMail({ email, username, reason, otp }: { email: string
 
         const subject = reason.split(" ").map(word => word.slice(0, 1).toUpperCase() + word.slice(1)).join(" ");
 
-        const info = await transporter.sendMail({
+        await transporter.sendMail({
             from: '"Social Media Team" <info@SocialMedia.com>',
             to: email,
-            subject: subject,
+            subject: resend ? "Resend " + subject : subject,
             html: htmlFileContent,
         });
 

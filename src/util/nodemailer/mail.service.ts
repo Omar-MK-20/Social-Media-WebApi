@@ -11,7 +11,7 @@ class MailService
     private _redisService = redisService;
     constructor() { }
 
-    async sendEmailOTP({ user, reason }: { user: { email: string; username: string; }; reason: OtpTypesEnum; })
+    async sendEmailOTP({ user, reason, resend = false }: { user: { email: string; username: string; }; reason: OtpTypesEnum; resend?: boolean; })
     {
         const prevOtpTtl = await this._redisService.ttl(OTPKey(user.email, reason));
         if (prevOtpTtl > 0)
@@ -36,7 +36,7 @@ class MailService
         const otp = generateOTP();
 
         // Question isn't it better to remove await, so it sends an email in the background?
-        await sendMail({ email: user.email, username: user.username, reason: reason, otp: otp, });
+        await sendMail({ email: user.email, username: user.username, reason: reason, otp: otp, resend: resend });
 
         await this._redisService.set({ key: OTPKey(user.email, reason), value: await hashingPassword(otp), exValue: 2 * 60 });
 
