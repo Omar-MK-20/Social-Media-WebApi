@@ -64,6 +64,7 @@ const userSchema = new Schema<IUser>({
         type: Number,
         default: 0
     },
+    deletedAt: Date
 }, {
     timestamps: true,
     toObject: { getters: true },
@@ -78,6 +79,13 @@ userSchema.pre("save", async function ()
     }
 
     if (this.phone && this.isModified("phone")) this.phone = encrypt(this.phone);
+});
+
+userSchema.pre(["find", "findOne"], function ()
+{
+    // console.log({ getQuery: this.getQuery() });
+    this.setQuery({ ...this.getQuery(), deletedAt: { $exists: false } });
+    // console.log({ getQuery2: this.getQuery() });
 });
 
 
