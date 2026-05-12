@@ -52,7 +52,7 @@ class AuthService
     {
         const { email } = bodyData;
 
-        const existEmail = await this._userRepo.findByEmail(email);
+        const existEmail = await this._userRepo.findByEmail({ email });
         if (existEmail)
         {
             throw new ConflictError({ message: "Email already exist" });
@@ -72,7 +72,7 @@ class AuthService
     public async login(bodyData: LoginDTO)
     {
 
-        const existUser = await this._userRepo.findByEmail(bodyData.email, "+password");
+        const existUser = await this._userRepo.findByEmail({ email: bodyData.email, projection: "+password" });
         if (!existUser)
         {
             throw new UnauthorizedError({ message: "Invalid Email or Password", info: { bodyData } });
@@ -121,7 +121,7 @@ class AuthService
             throw new UnauthorizedError({ message: "email must be verified", info: { email: googleTokenPayload.email, isVerified: googleTokenPayload.email_verified } });
         }
 
-        const existUser = await this._userRepo.findOne({ email: googleTokenPayload.email as string });
+        const existUser = await this._userRepo.findOne({ filter: { email: googleTokenPayload.email as string } });
 
         if (existUser)
         {
@@ -160,7 +160,7 @@ class AuthService
             throw new UnauthorizedError({ message: "email must be verified", info: { email: googleTokenPayload.email, isVerified: googleTokenPayload.email_verified } });
         }
 
-        const existUser = await this._userRepo.findOne({ email: googleTokenPayload.email as string });
+        const existUser = await this._userRepo.findOne({ filter: { email: googleTokenPayload.email as string } });
 
         if (!existUser)
         {
@@ -190,7 +190,7 @@ class AuthService
     {
         const { email, otp } = bodyData;
 
-        const existUser = await this._userRepo.findOne({ email: email, confirmEmail: false });
+        const existUser = await this._userRepo.findOne({ filter: { email: email, confirmEmail: false } });
         if (!existUser)
         {
             throw new UnauthorizedError({ message: "Invalid Email or Email already confirmed", info: { email } });
@@ -218,7 +218,7 @@ class AuthService
 
     public async resendConfirmEmail(email: string)
     {
-        const existUser = await this._userRepo.findByEmail(email);
+        const existUser = await this._userRepo.findByEmail({ email });
         if (!existUser)
         {
             throw new UnauthorizedError({ message: "Signup first", info: { email } });
@@ -236,7 +236,7 @@ class AuthService
 
     public async sendResetPassword(email: string)
     {
-        const existUser = await this._userRepo.findByEmail(email);
+        const existUser = await this._userRepo.findByEmail({ email });
         if (!existUser)
         {
             throw new UnauthorizedError({ message: "Signup first", info: { email } });
@@ -257,7 +257,7 @@ class AuthService
 
     public async resendResetPassword(email: string)
     {
-        const existUser = await this._userRepo.findByEmail(email);
+        const existUser = await this._userRepo.findByEmail({ email });
         if (!existUser)
         {
             throw new UnauthorizedError({ message: "Signup first", info: { email } });
@@ -281,7 +281,7 @@ class AuthService
     {
         const { email, otp, newPassword } = bodyData;
 
-        const existUser = await this._userRepo.findOne({ email: email, confirmEmail: true }, "+password");
+        const existUser = await this._userRepo.findOne({ filter: { email: email, confirmEmail: true }, projection: "+password" });
         if (!existUser)
         {
             throw new UnauthorizedError({ message: "Signup first", info: { email } });

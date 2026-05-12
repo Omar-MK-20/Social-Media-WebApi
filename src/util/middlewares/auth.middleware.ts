@@ -27,7 +27,7 @@ export function authentication(tokenType = TokenType.access, authType = AuthType
 
         if (typeof payload == "string") { throw new ContentError({ message: "Invalid Token data", info: { payload } }); }
 
-        const user = await userRepo.findById(payload.id);
+        const user = await userRepo.findById({ id: payload.id });
         if (!user)
         {
             throw new UnauthorizedError({ message: "user not found, signup first" });

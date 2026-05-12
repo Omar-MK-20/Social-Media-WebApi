@@ -37,7 +37,7 @@ class UserService
 
     public async getSharedProfile(profileId: string, session: Session & { firstTry: boolean; }, userData: HUser)
     {
-        const existUser = await this._userRepo.findById(profileId, "-role -confirmEmail -createdAt -updatedAt -__v -provider -galleries");
+        const existUser = await this._userRepo.findById({ id: profileId, projection: "-role -confirmEmail -createdAt -updatedAt -__v -provider -galleries" });
 
         if (!existUser)
         {
@@ -74,7 +74,7 @@ class UserService
         // logout from all devices (by changing the changeCreditTime property)
         if (formAllDevices == true)
         {
-            await this._userRepo.updateOne({ _id: userId }, { $set: { changeCreditTime: new Date() } });
+            await this._userRepo.updateOne({ filter: { _id: userId }, update: { $set: { changeCreditTime: new Date() } } });
 
             const blockedTokens = await this._redisService.keys(blockedTokenKey(userId));
             await this._redisService.del(blockedTokens);
