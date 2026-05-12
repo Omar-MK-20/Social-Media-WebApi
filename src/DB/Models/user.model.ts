@@ -83,10 +83,37 @@ userSchema.pre("save", async function ()
 
 userSchema.pre(["find", "findOne"], function ()
 {
-    // console.log({ getQuery: this.getQuery() });
-    this.setQuery({ ...this.getQuery(), deletedAt: { $exists: false } });
-    // console.log({ getQuery2: this.getQuery() });
+    const query = this.getQuery();
+    const { isDeleted, ...restQuery } = query;
+
+    if (query.isDeleted == true)
+    {
+        this.setQuery({ $or: [{ ...restQuery }, { $and: [{ ...restQuery }, { deletedAt: { $exists: true } }] }] });
+
+    }
+    else
+    {
+        this.setQuery({ ...restQuery, deletedAt: { $exists: false } });
+    }
 });
 
+userSchema.pre("updateOne", function ()
+{
+    const updateQuery = this.getUpdate();
+
+    //@ts-ignore
+    const { delete: boolean, ...restUpdateQuery } = updateQuery;
+
+    //@ts-ignore
+    if (updateQuery?.delete == true)
+    {
+        // @ts-ignore
+        this.setUpdate({ $set: { ...restUpdateQuery.$set, deletedAt: new Date() }, $setOnInsert: restUpdateQuery.$setOnInsert });
+    }
+    else
+    {
+        this.setUpdate({ ...restUpdateQuery });
+    }
+});
 
 export const UserModel = model<IUser>("users", userSchema);
