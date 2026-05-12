@@ -10,11 +10,15 @@ class UserRepo extends DBRepo<IUser>
         super(UserModel);
     }
 
-    public findByEmail(email: string,
-        projection?: ProjectionType<IUser> | null | undefined,
-        options?: QueryOptions<IUser> & { lean: true; })
+    public findByEmail({ email, isDeleted = false, projection, options }:
+        {
+            email: string;
+            isDeleted?: boolean;
+            projection?: ProjectionType<IUser> | null | undefined;
+            options?: QueryOptions<IUser> & { lean: true; };
+        })
     {
-        return this.findOne({ email }, projection, options);
+        return this.findOne({filter: {email}, isDeleted, projection, options});
     }
 
 }
