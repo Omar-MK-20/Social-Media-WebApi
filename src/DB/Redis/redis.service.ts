@@ -1,14 +1,14 @@
 import type { RedisVariadicArgument } from "@redis/client/dist/lib/commands/generic-transformers.js";
-import type { RedisArgument, RedisClientType } from "redis";
-import { redisClient } from "../redis.connection.js";
+import type { RedisArgument } from "redis";
+import { redisClient } from "./redis.connection.js";
 
-class RedisRepo 
+class RedisService 
 {
-    // protected Client: RedisClientType;
+    constructor() { }
 
-    constructor()
+    async keys(pattern: RedisArgument)
     {
-        // redisClient = client;
+        return await redisClient.keys(pattern);
     }
 
     async set({ key, value, exType = "EX", exValue = 120 }:
@@ -45,7 +45,12 @@ class RedisRepo
         return 1;
     }
 
+    async incr(key: RedisArgument)
+    {
+        return await redisClient.incr(key);
+    }
+
 }
 
 
-export default new RedisRepo();
+export default new RedisService();

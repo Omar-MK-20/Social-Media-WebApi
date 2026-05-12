@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { validation } from "../../util/middlewares/validation.middleware.js";
 import { successResponse } from "../../util/res/ResponseObject.js";
-import * as authService from "./auth.service.js";
-import { loginSchema, signupSchema } from "./auth.validation.js";
+import { confirmEmailSchema, confirmResetPasswordSchema, loginSchema, resendConfirmEmailSchema, sendResetPasswordSchema, signupSchema } from "./auth.validation.js";
 import { ContentError } from "../../util/res/ResponseError.js";
+import authService from "./auth.service.js";
 
 
 
@@ -72,3 +72,54 @@ authRouter.post("/login/gmail", async (req, res) =>
 
     return successResponse(res, result);
 });
+
+
+authRouter.post("/confirm-email",
+    validation(confirmEmailSchema),
+    async (req, res) =>
+    {
+        console.log(req.body);
+        const result = await authService.confirmEmail(req.valid.body);
+        return successResponse(res, result);
+    }
+);
+
+
+authRouter.post("/resend-confirm-email",
+    validation(resendConfirmEmailSchema),
+    async (req, res) =>
+    {
+        const result = await authService.resendConfirmEmail(req.valid.body.email);
+        return successResponse(res, result);
+    }
+);
+
+
+authRouter.post("/send-reset-password",
+    validation(sendResetPasswordSchema),
+    async (req, res) =>
+    {
+        const result = await authService.sendResetPassword(req.valid.body.email);
+        return successResponse(res, result);
+    }
+);
+
+authRouter.post("/resend-reset-password",
+    validation(sendResetPasswordSchema),
+    async (req, res) =>
+    {
+        const result = await authService.resendResetPassword(req.valid.body.email);
+        return successResponse(res, result);
+    }
+);
+
+
+authRouter.post("/confirm-reset-password",
+    validation(confirmResetPasswordSchema),
+    async (req, res) =>
+    {
+        console.log(req.body);
+        const result = await authService.confirmResetPassword(req.valid.body);
+        return successResponse(res, result);
+    }
+);

@@ -4,6 +4,8 @@ import { ContentError, ForbiddenError, UnauthorizedError } from "../res/Response
 import TokenService from "../security/token.service.js";
 import userRepo from "../../DB/Repos/user.repo.js";
 import type { RoleEnum } from "../enums/user.enums.js";
+import redisService from "../../DB/Redis/redis.service.js";
+import { blockedTokenKey } from "../helpers/token.funcs.js";
 
 
 export function authentication(tokenType = TokenType.access, authType = AuthType.bearer, { notRequired = false }: { notRequired?: boolean; } = {})
@@ -25,12 +27,17 @@ export function authentication(tokenType = TokenType.access, authType = AuthType
 
         if (typeof payload == "string") { throw new ContentError({ message: "Invalid Token data", info: { payload } }); }
 
-        const user = await userRepo.findById(payload.id);
+        const user = await userRepo.findById({ id: payload.id });
         if (!user)
         {
             throw new UnauthorizedError({ message: "user not found, signup first" });
         }
 
+        const blockedToken = await redisService.exists(blockedTokenKey(user._id.toString(), payload.jti as string));
+        if (blockedToken != 0)
+        {
+            throw new UnauthorizedError({ message: "You need to login" });
+        }
 
         // logout from all devices (by changing the changeCreditTime property)
         if (user.changeCreditTime && payload.iat)

@@ -1,6 +1,8 @@
 import type { JwtPayload } from "jsonwebtoken";
-import type { HUser, IUser } from "../interfaces/IUser.js";
+import type { HUser } from "../interfaces/IUser.js";
+import type express from "express";
 
+export type TExpress = ReturnType<typeof express>;
 
 declare global
 {

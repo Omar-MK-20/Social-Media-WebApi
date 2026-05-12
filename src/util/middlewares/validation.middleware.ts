@@ -55,5 +55,6 @@ export const ValidationType = {
     role: z.enum(RoleEnum).default(RoleEnum.User),
     profilePic: z.string(),
     coverPics: z.array(z.string()),
-    fromAllDevices: z.boolean()
+    fromAllDevices: z.boolean(),
+    otp: z.number().min(100000).max(999999)
 };
