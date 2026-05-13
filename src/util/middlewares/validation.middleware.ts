@@ -1,9 +1,9 @@
 import type { NextFunction, Request, Response } from "express";
 import z, { ZodObject } from "zod";
 import type { $ZodIssue } from "zod/v4/core";
+import { MIME_TYPES } from "../enums/file.enums.js";
 import { GenderEnum, RoleEnum } from "../enums/user.enums.js";
 import { ContentError } from "../res/ResponseError.js";
-
 
 export type ReqKey = keyof Request;
 
@@ -56,5 +56,13 @@ export const ValidationType = {
     profilePic: z.string(),
     coverPics: z.array(z.string()),
     fromAllDevices: z.boolean(),
-    otp: z.number().min(100000).max(999999)
+    otp: z.number().min(100000).max(999999),
+    memoryFile: z.object({
+        fieldname: z.string(),
+        originalname: z.string(),
+        encoding: z.string(),
+        mimetype: z.enum(MIME_TYPES),
+        buffer: z.instanceof(Buffer),
+        size: z.number(),
+    })
 };
