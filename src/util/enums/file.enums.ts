@@ -2,8 +2,9 @@ export const MIME_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp",
 
 export type MimeType = typeof MIME_TYPES[number];
 
+export enum StorageType { Disk, Memory }
 
-export const FileFormats = {
+export const FileFormats: Record<("image" | "gif" | "video" | "audio" | "pdf"), MimeType[]> = {
     image: ["image/jpeg", "image/jpg", "image/png", "image/webp"],
     gif: ["image/gif"],
     video: ["video/mp4", "video/mpeg", "video/webm"],
@@ -12,9 +13,10 @@ export const FileFormats = {
 };
 
 
-export const FolderName = {
-    profilePics: "profilePics",
-    coverPics: "coverPics"
+export enum FolderName
+{
+    profilePics = "profilePics",
+    coverPics = "coverPics"
 };
 
 
