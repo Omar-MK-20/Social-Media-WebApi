@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import z, { ZodObject } from "zod";
 import type { $ZodIssue } from "zod/v4/core";
-import { MIME_TYPES } from "../enums/file.enums.js";
+import { MIME_TYPES, StorageType } from "../enums/file.enums.js";
 import { GenderEnum, RoleEnum } from "../enums/user.enums.js";
 import { ContentError } from "../res/ResponseError.js";
 
@@ -45,6 +45,7 @@ const phoneRegExp = /^01[0125][0-9]{8}$/;
 export const ValidationType = {
     id: z.string({ error: "id is required" })
         .regex(/^[0-9a-fA-F]{24}$/, { error: "invalid id" }),
+    id2: z.hex().max(24).min(24), // for testing
     username: z.string().min(3).max(50),
     email: z.email(),
     password: z.string().regex(passwordRegExp),
@@ -64,5 +65,21 @@ export const ValidationType = {
         mimetype: z.enum(MIME_TYPES),
         buffer: z.instanceof(Buffer),
         size: z.number(),
-    })
+    }),
+    diskFile: z.object({
+        fieldname: z.string(),
+        originalname: z.string(),
+        encoding: z.string(),
+        mimetype: z.enum(MIME_TYPES),
+        destination: z.string(),
+        filename: z.string(),
+        path: z.string(),
+        size: z.number(),
+    }),
+    file(storageType: StorageType)
+    {
+        return storageType == StorageType.Memory
+            ? this.memoryFile
+            : this.diskFile;
+    },
 };
