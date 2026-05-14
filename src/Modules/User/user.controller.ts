@@ -1,14 +1,15 @@
 import { Router } from "express";
+import { FileFormats, StorageType } from "../../util/enums/file.enums.js";
 import { AuthType, TokenType } from "../../util/enums/token.enums.js";
 import { RoleEnum } from "../../util/enums/user.enums.js";
 import type { IUser } from "../../util/interfaces/IUser.js";
 import { authentication, authorization } from "../../util/middlewares/auth.middleware.js";
 import { validation } from "../../util/middlewares/validation.middleware.js";
+import { uploadFile } from "../../util/multer/multer.config.js";
 import { getSuccessObject, successObject, successResponse } from "../../util/res/ResponseObject.js";
+import { StatusCodeEnum } from "../../util/types/ResponseTypes.js";
 import userService from "./user.service.js";
 import { logoutSchema } from "./user.validation.js";
-import { uploadFile } from "../../util/multer/multer.config.js";
-import { StatusCodeEnum } from "../../util/types/ResponseTypes.js";
 
 export const userRouter = Router();
 
@@ -62,11 +63,11 @@ userRouter.post("/logout",
 userRouter.post("/upload-profile-pic",
     authentication(TokenType.access, AuthType.bearer),
     authorization(RoleEnum.User, RoleEnum.Admin),
-    uploadFile().single("ProfilePic"),
-    (req, res) =>
+    uploadFile({ storageType: StorageType.Memory, allowedFormats: FileFormats.image }).single("ProfilePic"),
+    async (req, res) =>
     {
         console.log(req.file);
-        const result = successObject(StatusCodeEnum.Accepted, "Done", {});
+        const result = successObject(StatusCodeEnum.Ok, "Done", { file: req.file });
         return successResponse(res, result);
     }
 );
