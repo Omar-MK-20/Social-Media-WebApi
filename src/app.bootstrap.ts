@@ -49,7 +49,7 @@ export async function bootstrap(server: TExpress)
     {
         server.listen(SEVER_PORT, () =>
         {
-            console.log(`Server is running on port :: ${SEVER_PORT}`);
+            console.log(`:: Server is running on port :: ${SEVER_PORT} ::`);
         });
     }
 

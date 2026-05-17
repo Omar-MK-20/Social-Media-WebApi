@@ -6,7 +6,7 @@ export async function testDBConnection()
     try
     {
         await mongoose.connect(DB_URI!);
-        console.log("Primary DB connected");
+        console.log(":: Primary DB connected ::");
     }
     catch (error)
     {

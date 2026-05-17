@@ -1,6 +1,10 @@
 import { createClient } from "redis";
 import { REDIS_URL } from "../../app.config.js";
 
+let DBName: string;
+if (REDIS_URL.includes("127.0.0.1")) DBName = "Redis Local DB";
+else DBName = "Redis Remote DB";
+
 export const redisClient = createClient({
     url: REDIS_URL,
     socket: {
@@ -24,7 +28,7 @@ export async function testRedisConnection()
     try
     {
         await redisClient.connect();
-        console.log("Redis DB connected");
+        console.log(`:: ${DBName} connected ::`);
     }
     catch (error)
     {

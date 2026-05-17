@@ -6,6 +6,8 @@ dotenv.config({ path: path.resolve("./config/.env.dev") });
 
 
 export const SEVER_PORT = process.env.SEVER_PORT as string;
+if (SEVER_PORT == "3000") console.log(":: Development Server ::");
+else console.log(":: Production Server ::");
 
 export const DB_URI = process.env.DB_URI as string;
 export const DB_URI_FALLBACK = process.env.DB_URI_FALLBACK as string;
