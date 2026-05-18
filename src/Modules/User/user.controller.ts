@@ -7,9 +7,10 @@ import { authentication, authorization } from "../../util/middlewares/auth.middl
 import { validation } from "../../util/middlewares/validation.middleware.js";
 import { uploadFile } from "../../util/multer/multer.config.js";
 import { getSuccessObject, successObject, successResponse } from "../../util/res/ResponseObject.js";
+import { expressSession } from "../../util/session/session.config.js";
 import { StatusCodeEnum } from "../../util/types/ResponseTypes.js";
 import userService from "./user.service.js";
-import { logoutSchema } from "./user.validation.js";
+import { logoutSchema, shareProfileSchema } from "./user.validation.js";
 
 export const userRouter = Router();
 
@@ -37,15 +38,15 @@ userRouter.post("/renew-token",
     });
 
 
-// userRouter.get("/share-profile/:id",
-//     authentication(TokenType.access, AuthType.bearer, { notRequired: true }),
-//     expressSession(),
-// validation(shareProfileSchema),
-//     async (req, res) =>
-//     {
-//         const result = await userService.getSharedProfile(req.params.id as string, req.session, req.user);
-//         return successResponse(res, result);
-//     });
+userRouter.get("/share-profile/:id",
+    authentication(TokenType.access, AuthType.bearer, { notRequired: true }),
+    expressSession(),
+    validation(shareProfileSchema),
+    async (req, res) =>
+    {
+        const result = await userService.getSharedProfile(req.params.id as string, req.session, req.user);
+        return successResponse(res, result);
+    });
 
 
 userRouter.post("/logout",

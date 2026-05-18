@@ -1,6 +1,6 @@
-import type { Session } from "express-session";
+import type { Session, SessionData } from "express-session";
 import type { JwtPayload } from "jsonwebtoken";
-import redisRepo from "../../DB/Redis/redis.service.js";
+import redisService from "../../DB/Redis/redis.service.js";
 import userRepo from "../../DB/Repos/user.repo.js";
 import { TokenType } from "../../util/enums/token.enums.js";
 import { RoleEnum } from "../../util/enums/user.enums.js";
@@ -9,7 +9,6 @@ import type { HUser, } from "../../util/interfaces/IUser.js";
 import { NotFoundError } from "../../util/res/ResponseError.js";
 import { getSuccessObject, successObject } from "../../util/res/ResponseObject.js";
 import tokenService from "../../util/security/token.service.js";
-import redisService from "../../DB/Redis/redis.service.js";
 
 
 class UserService
@@ -35,7 +34,7 @@ class UserService
     }
 
 
-    public async getSharedProfile(profileId: string, session: Session & { firstTry: boolean; }, userData: HUser)
+    public async getSharedProfile(profileId: string, session: Session & Partial<SessionData>, userData: HUser)
     {
         const existUser = await this._userRepo.findById({ id: profileId, projection: "-role -confirmEmail -createdAt -updatedAt -__v -provider -galleries" });
 
@@ -84,7 +83,7 @@ class UserService
         // logout from single device (by blocking the token)
         else
         {
-            await redisRepo.set({
+            await this._redisService.set({
                 key: blockedTokenKey(userId, tokenData.jti as string),
                 value: tokenData.jti as string,
                 exValue: Math.floor((60 * 60 * 24 * 365) - (Date.now() / 1000 - (tokenData.iat as number)))
