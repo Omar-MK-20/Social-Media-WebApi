@@ -21,6 +21,7 @@ export const redisClient = createClient({
 redisClient.on("error", (err) => { console.log(err); });
 redisClient.on("end", () => { console.log("Redis ended from event "); });
 redisClient.on("reconnecting", () => { console.log("Redis reconnecting from event "); });
+redisClient.on("connect", () => { console.log(`:: ${DBName} connected ::`); });
 
 
 export async function testRedisConnection()
@@ -28,7 +29,6 @@ export async function testRedisConnection()
     try
     {
         await redisClient.connect();
-        console.log(`:: ${DBName} connected ::`);
     }
     catch (error)
     {
