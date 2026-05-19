@@ -10,7 +10,7 @@ import { getSuccessObject, successObject, successResponse } from "../../util/res
 import { expressSession } from "../../util/session/session.config.js";
 import { StatusCodeEnum } from "../../util/types/ResponseTypes.js";
 import userService from "./user.service.js";
-import { logoutSchema, shareProfileSchema } from "./user.validation.js";
+import { logoutSchema, shareProfileSchema, uploadCoverPicSchema, uploadProfilePicSchema } from "./user.validation.js";
 
 export const userRouter = Router();
 
@@ -65,10 +65,28 @@ userRouter.post("/upload-profile-pic",
     authentication(TokenType.access, AuthType.bearer),
     authorization(RoleEnum.User, RoleEnum.Admin),
     uploadFile({ storageType: StorageType.Memory, allowedFormats: FileFormats.image }).single("ProfilePic"),
+    validation(uploadProfilePicSchema),
     async (req, res) =>
     {
-        console.log(req.file);
         const result = successObject(StatusCodeEnum.Ok, "Done", { file: req.file });
+        return successResponse(res, result);
+    }
+);
+
+
+userRouter.post("/upload-cover-pic",
+    authentication(TokenType.access, AuthType.bearer),
+    authorization(RoleEnum.User, RoleEnum.Admin),
+    uploadFile({
+        storageType: StorageType.Disk,
+        allowedFormats: [...FileFormats.image, ...FileFormats.gif],
+        filesCount: 3,
+        fileSize: 10
+    }).array("CoverPic"),
+    validation(uploadCoverPicSchema),
+    async (req, res) =>
+    {
+        const result = successObject(StatusCodeEnum.Ok, "Done", { files: req.files });
         return successResponse(res, result);
     }
 );
