@@ -1,4 +1,4 @@
-import type { Model, MongooseUpdateQueryOptions, ProjectionType, QueryFilter, QueryOptions, Types, UpdateQuery, UpdateWithAggregationPipeline } from "mongoose";
+import type { HydratedDocument, Model, MongooseUpdateQueryOptions, ProjectionType, QueryFilter, QueryOptions, Types, UpdateQuery, UpdateWithAggregationPipeline } from "mongoose";
 
 export abstract class DBRepo<T>
 {
@@ -62,5 +62,15 @@ export abstract class DBRepo<T>
         })
     {
         return await this.Model.findOne({ _id: id, isDeleted }, projection, options);
+    }
+
+    public getDBDoc(doc: T)
+    {
+        return new this.Model(doc);
+    }
+
+    public async saveDBDoc(doc: HydratedDocument<T>)
+    {
+        return await doc.save();
     }
 }
